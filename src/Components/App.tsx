@@ -3,6 +3,7 @@ import Thumbnail, { Nickname }  from './Thumbnail'
 import About from './About'
 import Projects from './Projects'
 import Contact from './Contact'
+import Game from './Game'
 import '../Css/App.css';
 
 type AppPropType = {};
@@ -23,6 +24,7 @@ class App extends React.Component<AppPropType, { nicknames: Array<Nickname>}>{
     return (
       <div className="App">
         <Thumbnail nicknames={this.state.nicknames} />
+        <Game />
         <About />
         <Projects />
         <Contact />
