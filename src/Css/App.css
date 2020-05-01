@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+.gameContainer {
+  width: 95%;
+  height: 800px;
+  border: 1px solid red;
+  margin: 0px auto;
+  text-align: center;
+}
+
+
+#gameCanvas{
+  width: 100%;
+  height : 100%;
+}
