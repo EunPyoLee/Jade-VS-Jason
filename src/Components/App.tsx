@@ -1,6 +1,9 @@
 import React from 'react';
 import Thumbnail, { Nickname }  from './Thumbnail'
-import './App.css';
+import About from './About'
+import Projects from './Projects'
+import Contact from './Contact'
+import '../Css/App.css';
 
 type AppPropType = {};
 
@@ -13,13 +16,16 @@ class App extends React.Component<AppPropType, { nicknames: Array<Nickname>}>{
   }
 
   componentDidMount(){
-    this.setState({nicknames: [{id : 0, name : "Programmer"}, {id : 1, name : "Home Cook"}, {id : 2, name : "Just Dancer"}]});
+    this.setState({nicknames: [{id : 0, name : "Programmer"}, {id : 1, name : "Home Cook"}, {id : 2, name : "Just Dance Dancer"}]});
   }
 
   render(){
     return (
       <div className="App">
         <Thumbnail nicknames={this.state.nicknames} />
+        <About />
+        <Projects />
+        <Contact />
       </div>
     );
   }

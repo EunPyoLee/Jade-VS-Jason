@@ -27,6 +27,7 @@ class Thumbnail extends React.Component<ThumbnailPropType>{
                   <li key={nickname.id}>{nickname.name}</li>
               ))}
           </ul>
+          <h5><a href="#aboutId">About Me</a> | <a href="#projectId">My Projects</a> | <a href="#contactId">Contact Me</a></h5>
       </div>
     );
   }
