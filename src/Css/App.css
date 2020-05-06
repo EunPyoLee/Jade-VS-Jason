@@ -39,8 +39,7 @@
 
 .gameContainer {
   width: 95%;
-  height: 800px;
-  border: 1px solid red;
+  height: 600px;
   margin: 0px auto;
   text-align: center;
 }
