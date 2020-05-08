@@ -43,9 +43,11 @@ class App extends React.Component<AppPropType, { nicknames: Array<Nickname>, use
 
         <div className="gameContainer">
           <div className="hpContainer">
+            <div className="user gameprofile"></div>
             <div className="hpLimiter"><Health side="user" hp={this.state.userHp}/></div>
             <div className="gapBox"></div>
             <div className="hpLimiter comp"><Health side="comp" hp={this.state.compHp}/></div>
+            <div className="comp gameprofile"></div>
           </div>
           <canvas id="gameCanvas"></canvas>
         </div>

@@ -60,7 +60,7 @@
   padding: 0;
 }
 .gapBox{
-  width: 60%;
+  width: 50%;
   height: 100%;
 }
 
@@ -73,4 +73,9 @@
 .comp{
   transform: rotate(180deg);
   overflow: hidden;
+}
+
+.gameprofile{
+  width: 5%;
+  height: 100%;
 }

@@ -35,7 +35,9 @@ class Game extends React.Component {
       World = Matter.World,
       Bodies = Matter.Bodies;
 
-    var engine = Engine.create(),
+    var engine = Engine.create({
+      enableSleeping: true
+    }),
       world = engine.world;
 
 
@@ -58,26 +60,37 @@ class Game extends React.Component {
 
     const ground = Bodies.rectangle(renderWidth / 2.0, renderHeight + 110, renderWidth * 50, 200, { isStatic: true });
     ground.label = "ground";
-    const user = Bodies.trapezoid(percentXtoRender(10, renderWidth), percentYtoRender(94, renderHeight), 40, 100, 0.3, { isStatic: true });
-    const comp = Bodies.trapezoid(percentXtoRender(100, renderWidth), percentYtoRender(94, renderHeight), 40, 100, 0.3, { isStatic: true });
-    user.collisionFilter.group = -1;
+    ground.collisionFilter.group = 0;
+    ground.collisionFilter.category = 0b1;
+    ground.collisionFilter.mask = 0b0;
+    const user = Bodies.trapezoid(percentXtoRender(10, renderWidth), percentYtoRender(94, renderHeight), 40, 150, 0.3, { isStatic: true });
+    const comp = Bodies.trapezoid(percentXtoRender(100, renderWidth), percentYtoRender(94, renderHeight), 40, 150, 0.3, { isStatic: true });
+    user.collisionFilter.group = 0;
+    user.collisionFilter.category = 0b1000;
+    user.collisionFilter.mask = 0b100;
     user.label = "user";
-    comp.collisionFilter.group = -2;
+    comp.collisionFilter.group = 0;
+    comp.collisionFilter.category = 0b10000;
+    comp.collisionFilter.mask = 0b10;
     comp.label = "comp";
     let rockOptions = { density: 0.004, restitution: 0.4 };
-    let rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(80, renderHeight), 8, rockOptions);
+    let rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
     rock1.label = "userRock";
-    rock1.collisionFilter.group = -1;
-    let anchor1 = { x: percentXtoRender(10, renderWidth), y: percentYtoRender(80, renderHeight) };
+    rock1.collisionFilter.group = 0;
+    rock1.collisionFilter.category = 0b10;
+    rock1.collisionFilter.mask = 0b10001;
+    let anchor1 = { x: percentXtoRender(10, renderWidth), y: percentYtoRender(85, renderHeight) };
     let elastic1 = Constraint.create({
       pointA: anchor1,
       bodyB: rock1,
       stiffness: 0.06
     });
-    let rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(80, renderHeight), 8, rockOptions);
+    let rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
     rock2.label = "compRock";
-    rock2.collisionFilter.group = -2;
-    let anchor2 = { x: percentXtoRender(100, renderWidth), y: percentYtoRender(80, renderHeight) };
+    rock2.collisionFilter.group = 0;
+    rock2.collisionFilter.category = 0b100;
+    rock2.collisionFilter.mask = 0b1001;
+    let anchor2 = { x: percentXtoRender(100, renderWidth), y: percentYtoRender(85, renderHeight) };
     let elastic2 = Constraint.create({
       pointA: anchor2,
       bodyB: rock2,
@@ -86,22 +99,19 @@ class Game extends React.Component {
     Matter.Body.setStatic(rock2, true);
 
     let isUserTurn = true;
-    const ground2 = Bodies.rectangle(percentXtoRender(55, renderWidth), percentYtoRender(80, renderHeight), 15, 400, { isStatic: true, isSensor: false });
+    const ground2 = Bodies.rectangle(percentXtoRender(55, renderWidth), percentYtoRender(85, renderHeight), 15, 400, { isStatic: true, isSensor: false });
     World.add(engine.world, [ground, ground2, user, comp, rock1, rock2, elastic1, elastic2]);
-    var collision = Matter.SAT.collides(rock1, ground);
-    if (collision.collided) {
-      console.log("Hi");
-    }
-
 
     Events.on(engine, 'afterUpdate', function () {
-      if (mouseConstraint.mouse.button === -1 && (Math.abs(rock1.position.x - percentXtoRender(10, renderWidth)) > 5 || Math.abs(rock1.position.y - percentYtoRender(80, renderHeight)) > 5)) {
-        rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(80, renderHeight), 8, rockOptions);
+      if (mouseConstraint.mouse.button === -1 && (Math.abs(rock1.position.x - percentXtoRender(10, renderWidth)) > 5 || Math.abs(rock1.position.y - percentYtoRender(85, renderHeight)) > 5)) {
+        ground.collisionFilter.mask = 0b110;
+        rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
         // World.add(engine.world, rock);
         elastic1.bodyB = rock1;
       }
-      if (mouseConstraint.mouse.button === -1 && (Math.abs(rock2.position.x - percentXtoRender(100, renderWidth)) > 5 || Math.abs(rock2.position.y - percentYtoRender(80, renderHeight)) > 5)) {
-        rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(80, renderHeight), 8, rockOptions);
+      if (mouseConstraint.mouse.button === -1 && (Math.abs(rock2.position.x - percentXtoRender(100, renderWidth)) > 5 || Math.abs(rock2.position.y - percentYtoRender(85, renderHeight)) > 5)) {
+        ground.collisionFilter.mask = 0b110;
+        rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
         // World.add(engine.world, rock);
         elastic2.bodyB = rock2;
       }
@@ -109,56 +119,61 @@ class Game extends React.Component {
     let lastUserTurnTime = Date.now() - 3000;
     let lastCompTurnTime = Date.now();
 
-    Events.on(engine, 'collisionStart', function (event) {
+    Events.on(ground, 'sleepStart', function (event) {
+      console.log("awake");
+      console.log(event.source.label);
+    });
+
+    Events.on(engine, 'collisionEnd', function (event) {
       let pairs = event.pairs;
+      let thrownRock = pairs[0].bodyA.label === "ground" || "user" || "comp" ? pairs[0].bodyB : pairs[0].bodyA;
       console.log(pairs[0]);
-      if (pairs[0].bodyA.label === "ground" || pairs[0].bodyB.label === "ground" ||
-        pairs[0].bodyA.label === "user" || pairs[0].bodyB.label === "comp" 
-        || pairs[0].bodyA.label === "comp" || pairs[0].bodyB.label === "user") {
-        const groundCase = (pairs[0].bodyA.label === "ground" || pairs[0].bodyB.label === "ground");
-
-        if (!groundCase) {
-          if (isUserTurn && Math.abs(lastUserTurnTime - Date.now()) > 3100) {
-            console.log('props after hit');
-            this.props.updateHp(true);
-          }
-          else if (!isUserTurn && Math.abs(lastCompTurnTime - Date.now()) > 3100) {
-            console.log('props after hit');
-            this.props.updateHp(false);
-          }
-        }
-        else if ((isUserTurn && Math.abs(lastUserTurnTime - Date.now()) > 3100) ||
-          (!isUserTurn && Math.abs(lastCompTurnTime - Date.now()) > 3100)) {
-          let thrownRock = pairs[0].bodyA.label === "ground" || "user" || "comp" ? pairs[0].bodyB : pairs[0].bodyA;
-          let ballLabel = thrownRock.label;
-          setTimeout(function () {
-            World.remove(engine.world, thrownRock);
-            if (isUserTurn && ballLabel === "userRock" && Math.abs(lastUserTurnTime - Date.now()) > 3100) {
-              isUserTurn = false;
-              lastUserTurnTime = Date.now();
-              rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(80, renderHeight), 8, rockOptions);
-              Matter.Body.setStatic(rock1, true);
-              Matter.Body.setStatic(rock2, false);
-              rock1.label = "userRock";
-              rock1.collisionFilter.group = -1;
-              World.add(engine.world, rock1);
-              elastic1.bodyB = rock1;
-
-            } else if (!isUserTurn && ballLabel === "compRock" && Math.abs(lastCompTurnTime - Date.now()) > 3100) {
-              isUserTurn = true;
-              lastCompTurnTime = Date.now();
-              rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(80, renderHeight), 8, rockOptions);
-              Matter.Body.setStatic(rock2, true);
-              Matter.Body.setStatic(rock1, false);
-              rock2.label = "compRock";
-              rock2.collisionFilter.group = -2;
-              World.add(engine.world, rock2);
-              elastic2.bodyB = rock2;
-            }
-            console.log("remove printout\n");
-          }, 3000);
+      if (pairs[0].bodyA.label === "comp" || pairs[0].bodyB.label === "comp" ||
+        pairs[0].bodyA.label === "user" || pairs[0].bodyB.label === "user") {
+        thrownRock.collisionFilter.mask = 0b001;
+        if (thrownRock.label === "userRock") {
+          console.log("Comp got hit by user's rock1\n");
+          this.props.updateHp(true);
+        } else {
+          console.log("User got hit by comp's rock1\n");
+          this.props.updateHp(false);
         }
 
+      }
+      else {//ground hit first case
+        thrownRock.collisionFilter.mask = 0b001;
+        console.log("Ground hit");
+        setTimeout(function () {
+          World.remove(engine.world, thrownRock);
+          if (thrownRock.label === "userRock" && Math.abs(lastUserTurnTime - Date.now()) > 3100) {
+            isUserTurn = false;
+            lastUserTurnTime = Date.now();
+            rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
+            Matter.Body.setStatic(rock1, true);
+            Matter.Body.setStatic(rock2, false);
+            rock1.label = "userRock";
+            rock1.collisionFilter.group = 0;
+            rock1.collisionFilter.category = 0b10;
+            rock1.collisionFilter.mask = 0b10001;
+            World.add(engine.world, rock1);
+            ground.collisionFilter.mask = 0b0;
+            elastic1.bodyB = rock1;
+          }
+          else if (thrownRock.label === "compRock" && Math.abs(lastCompTurnTime - Date.now()) > 3100) {
+            isUserTurn = true;
+            lastCompTurnTime = Date.now();
+            rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
+            Matter.Body.setStatic(rock2, true);
+            Matter.Body.setStatic(rock1, false);
+            rock2.label = "compRock";
+            rock2.collisionFilter.group = 0;
+            rock2.collisionFilter.category = 0b100;
+            rock2.collisionFilter.mask = 0b1001;
+            World.add(engine.world, rock2);
+            ground.collisionFilter.mask = 0b0;
+            elastic2.bodyB = rock2;
+          }
+        }, 3000);
       }
     }.bind(this));
 
