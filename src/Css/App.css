@@ -36,3 +36,46 @@
     transform: rotate(360deg);
   }
 }
+
+.gameContainer {
+  width: 95%;
+  height: 600px;
+  margin: 0px auto;
+  text-align: center;
+}
+
+
+#gameCanvas{
+  width: 100%;
+  height : 100%;
+}
+
+.hpContainer{
+  justify-content: flex-end;
+  display: flex;
+  width: 100%;
+  height: 20px;
+  background-color: #18171D;
+  margin: 0;
+  padding: 0;
+}
+.gapBox{
+  width: 50%;
+  height: 100%;
+}
+
+.hpLimiter{
+  width: 20%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+.comp{
+  transform: rotate(180deg);
+  overflow: hidden;
+}
+
+.gameprofile{
+  width: 5%;
+  height: 100%;
+}
