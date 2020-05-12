@@ -73,7 +73,7 @@ class Game extends React.Component {
     comp.collisionFilter.category = 0b10000;
     comp.collisionFilter.mask = 0b10;
     comp.label = "comp";
-    let rockOptions = { density: 0.004, restitution: 0.4};
+    let rockOptions = { density: 0.004, restitution: 0.4 };
     let rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
     rock1.label = "userRock";
     rock1.collisionFilter.group = 0;
@@ -127,57 +127,103 @@ class Game extends React.Component {
     });
     let lastUserTurnTime = Date.now() - 3000;
     let lastCompTurnTime = Date.now();
-
+    let firstHit = true;
     Events.on(engine, 'collisionEnd', function (event) {
       let pairs = event.pairs;
       let thrownRock = pairs[0].bodyA.label === "ground" || pairs[0].bodyA.label === "ground2" || pairs[0].bodyA.label === "user" || pairs[0].bodyA.label === "comp" ? pairs[0].bodyB : pairs[0].bodyA;
       console.log(pairs[0]);
       if (pairs[0].bodyA.label === "comp" || pairs[0].bodyB.label === "comp" ||
         pairs[0].bodyA.label === "user" || pairs[0].bodyB.label === "user") {
-        thrownRock.collisionFilter.mask = 0b100001;
-        if (thrownRock.label === "userRock") {
-          console.log("Comp got hit by user's rock1\n");
-          this.props.updateHp(true);
-        } else {
-          console.log("User got hit by comp's rock1\n");
-          this.props.updateHp(false);
+        if (firstHit) {
+          firstHit = false;
+          thrownRock.collisionFilter.mask = 0b100001;
+          if (thrownRock.label === "userRock") {
+            console.log("Comp got hit by user's rock1\n");
+            this.props.updateHp(true);
+          } else {
+            console.log("User got hit by comp's rock1\n");
+            this.props.updateHp(false);
+          }
+          setTimeout(function () {
+            World.remove(engine.world, thrownRock);
+            if (thrownRock.label === "userRock" && Math.abs(lastUserTurnTime - Date.now()) > 3100) {
+              isUserTurn = false;
+              lastUserTurnTime = Date.now();
+              rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
+              Matter.Body.setStatic(rock1, true);
+              Matter.Body.setStatic(rock2, false);
+              rock1.label = "userRock";
+              rock1.collisionFilter.group = 0;
+              rock1.collisionFilter.category = 0b10;
+              rock1.collisionFilter.mask = 0b110001;
+              World.add(engine.world, rock1);
+              // ground.collisionFilter.mask = 0b0;
+              elastic1.bodyB = rock1;
+            }
+            else if (thrownRock.label === "compRock" && Math.abs(lastCompTurnTime - Date.now()) > 3100) {
+              isUserTurn = true;
+              lastCompTurnTime = Date.now();
+              rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
+              Matter.Body.setStatic(rock2, true);
+              Matter.Body.setStatic(rock1, false);
+              rock2.label = "compRock";
+              rock2.collisionFilter.group = 0;
+              rock2.collisionFilter.category = 0b100;
+              rock2.collisionFilter.mask = 0b101001;
+              World.add(engine.world, rock2);
+              // ground.collisionFilter.mask = 0b0;
+              elastic2.bodyB = rock2;
+            }
+            setTimeout(() => {
+              firstHit = true;
+            }, 50);
+            
+          }, 3000);
         }
+
 
       }
       else {//ground hit first case
-        thrownRock.collisionFilter.mask = 0b100001;
-        console.log("Ground hit");
-        setTimeout(function () {
-          World.remove(engine.world, thrownRock);
-          if (thrownRock.label === "userRock" && Math.abs(lastUserTurnTime - Date.now()) > 3100) {
-            isUserTurn = false;
-            lastUserTurnTime = Date.now();
-            rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
-            Matter.Body.setStatic(rock1, true);
-            Matter.Body.setStatic(rock2, false);
-            rock1.label = "userRock";
-            rock1.collisionFilter.group = 0;
-            rock1.collisionFilter.category = 0b10;
-            rock1.collisionFilter.mask = 0b110001;
-            World.add(engine.world, rock1);
-            // ground.collisionFilter.mask = 0b0;
-            elastic1.bodyB = rock1;
-          }
-          else if (thrownRock.label === "compRock" && Math.abs(lastCompTurnTime - Date.now()) > 3100) {
-            isUserTurn = true;
-            lastCompTurnTime = Date.now();
-            rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
-            Matter.Body.setStatic(rock2, true);
-            Matter.Body.setStatic(rock1, false);
-            rock2.label = "compRock";
-            rock2.collisionFilter.group = 0;
-            rock2.collisionFilter.category = 0b100;
-            rock2.collisionFilter.mask = 0b101001;
-            World.add(engine.world, rock2);
-            // ground.collisionFilter.mask = 0b0;
-            elastic2.bodyB = rock2;
-          }
-        }, 3000);
+        if (firstHit) {
+          firstHit = false;
+          thrownRock.collisionFilter.mask = 0b100001;
+          console.log("Ground hit");
+          setTimeout(function () {
+            World.remove(engine.world, thrownRock);
+            if (thrownRock.label === "userRock" && Math.abs(lastUserTurnTime - Date.now()) > 3100) {
+              isUserTurn = false;
+              lastUserTurnTime = Date.now();
+              rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
+              Matter.Body.setStatic(rock1, true);
+              Matter.Body.setStatic(rock2, false);
+              rock1.label = "userRock";
+              rock1.collisionFilter.group = 0;
+              rock1.collisionFilter.category = 0b10;
+              rock1.collisionFilter.mask = 0b110001;
+              World.add(engine.world, rock1);
+              // ground.collisionFilter.mask = 0b0;
+              elastic1.bodyB = rock1;
+            }
+            else if (thrownRock.label === "compRock" && Math.abs(lastCompTurnTime - Date.now()) > 3100) {
+              isUserTurn = true;
+              lastCompTurnTime = Date.now();
+              rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
+              Matter.Body.setStatic(rock2, true);
+              Matter.Body.setStatic(rock1, false);
+              rock2.label = "compRock";
+              rock2.collisionFilter.group = 0;
+              rock2.collisionFilter.category = 0b100;
+              rock2.collisionFilter.mask = 0b101001;
+              World.add(engine.world, rock2);
+              // ground.collisionFilter.mask = 0b0;
+              elastic2.bodyB = rock2;
+            }
+            setTimeout(() => {
+              firstHit = true;
+            }, 50);
+          }, 3000);
+        }
+
       }
     }.bind(this));
 
