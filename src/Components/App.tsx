@@ -5,9 +5,12 @@ import Projects from './Projects'
 import Contact from './Contact'
 import Game from './Game.jsx'
 import Health from './Health.jsx'
+import {addNormal} from '../Actions/hpActions';
 import '../Css/App.css';
 
-type AppPropType = {};
+type AppPropType = {
+  store : any
+};
 
 class App extends React.Component<AppPropType, { nicknames: Array<Nickname>, userHp: Number, compHp: Number }>{
   constructor(props: AppPropType) {
@@ -17,23 +20,11 @@ class App extends React.Component<AppPropType, { nicknames: Array<Nickname>, use
       userHp: 100,
       compHp: 100
     };
-    this.updateHp = this.updateHp.bind(this);
   }
 
   componentDidMount() {
     this.setState({ nicknames: [{ id: 0, name: "Programmer" }, { id: 1, name: "Home Cook" }, { id: 2, name: "Just Dance Dancer" }] });
   }
-
-  updateHp(isUserTurn : boolean){
-    console.log(isUserTurn);
-    if(isUserTurn){
-      this.setState((prevState : any) => ({compHp: prevState.compHp - 10}));
-    }
-    else{
-      this.setState((prevState : any) => ({userHp: prevState.userHp - 10}));
-    }
-  }
-
 
 
   render() {
@@ -43,17 +34,21 @@ class App extends React.Component<AppPropType, { nicknames: Array<Nickname>, use
 
         <div className="gameContainer">
           <div className="hpContainer">
-            <div className="user gameprofile"></div>
-            <div className="hpLimiter"><Health side="user" hp={this.state.userHp}/></div>
+            <div className="gameprofile">Jason</div>
+            <div className="hpLimiter">
+              <Health store={this.props.store} side='user'/>
+            </div>
             <div className="gapBox"></div>
-            <div className="hpLimiter comp"><Health side="comp" hp={this.state.compHp}/></div>
-            <div className="comp gameprofile"></div>
+            <div className="hpLimiter comp">
+            <Health store={this.props.store} side='comp'/>
+            </div>
+            <div className="gameprofile">Jade</div>
           </div>
           <canvas id="gameCanvas"></canvas>
         </div>
 
 
-        <Game updateHp={this.updateHp} />
+        <Game updateHp={(_isUser : boolean) => this.props.store.dispatch(addNormal(_isUser))}/>
         <About />
         <Projects />
         <Contact />

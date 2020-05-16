@@ -244,12 +244,13 @@ class Game extends React.Component {
           if (thrownRock.label === "userRock") {
             console.log("Comp got hit by user's rock1\n");
             compHead.render.sprite = { texture: images["compHit"], xScale: 0.25, xOffset: 0.5, yScale: 0.25, yOffset: 1 };
-            this.props.updateHp(true);
+            this.props.updateHp(false);
           } else {
             userHead.render.sprite = { texture: images["userHit"], xScale: 0.22, xOffset: 0.5, yScale: 0.15, yOffset: 1.1 };
 
             console.log("User got hit by comp's rock1\n");
-            this.props.updateHp(false);
+            this.props.updateHp(true);
+            // this.props.updateHp(false);
           }
           setTimeout(function () {
             World.remove(engine.world, thrownRock);

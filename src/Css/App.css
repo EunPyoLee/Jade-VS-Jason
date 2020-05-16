@@ -73,9 +73,14 @@
 .comp{
   transform: rotate(180deg);
   overflow: hidden;
+  color: ;
 }
 
 .gameprofile{
   width: 5%;
   height: 100%;
+  background-color: floralwhite;
+  font-family: sans-serif;
+  color: darkslateblue;
+  font-weight: bolder;
 }

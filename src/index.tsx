@@ -1,12 +1,24 @@
 import React from 'react';
+import { createStore, combineReducers} from 'redux';
 import ReactDOM from 'react-dom';
 import './Css/index.css';
 import App from './Components/App';
 import * as serviceWorker from './serviceWorker';
+import {hpReducer} from './Reducers/hpReducer';
+
 //React.StrictMode link https://reactjs.org/docs/strict-mode.html
+const hpHandler = combineReducers({
+  hpReducer
+});
+let store = createStore(hpHandler);
+
+//subscribe() returns a function for unregistering the listener
+const unsubscribe = store.subscribe(() => {console.log("HP state changed"); console.log(store.getState())});
+
+//just call unsunbscribe() to stop listening
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App store={store}/>
   </React.StrictMode>,
   document.getElementById('reactEntry')
 );
