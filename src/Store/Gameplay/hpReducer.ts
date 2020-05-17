@@ -1,9 +1,11 @@
-const initialState = {
+import {HPState, PlayActionTypes} from './types';
+
+const initialState : HPState = {
     userHP : 100,
     compHP : 100
 }
 
-export function hpReducer(prevHPState = initialState, action :{type : string, isUser :boolean}) {
+export function hpReducer(prevHPState = initialState, action : PlayActionTypes) : HPState {
     switch (action.type) {
       case 'normal':
         if(action.isUser){

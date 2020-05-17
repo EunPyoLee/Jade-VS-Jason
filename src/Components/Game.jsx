@@ -15,6 +15,8 @@ import rocketImg from './Gameimages/rocket.png'
 import standImg from './Gameimages/Stand.png';
 import userThrowImg from './Gameimages/throw_user.png';
 import compThrowImg from './Gameimages/throw_comp.png'
+import { connect } from 'react-redux';
+import {addNormal} from '../Store/Gameplay/hpActions'
 
 function percentXtoRender(percent, renderWidth) {
   return (percent / 100 * renderWidth);
@@ -23,6 +25,11 @@ function percentXtoRender(percent, renderWidth) {
 function percentYtoRender(percent, renderHeight) {
   return (percent / 100 * renderHeight);
 }
+const mapDispatchToProps = dispatch  => { 
+  return{
+    gpNormal: (_isUser) => dispatch(addNormal(_isUser)),
+  }
+};
 
 class Game extends React.Component {
   constructor(props) {
@@ -44,7 +51,6 @@ class Game extends React.Component {
       "stand": standImg,
       "userThrow": userThrowImg,
       "compThrow" : compThrowImg
-
     }
 
     var Engine = Matter.Engine,
@@ -137,7 +143,6 @@ class Game extends React.Component {
         visible: true
       }
     });
-    // elastic1.st
     let rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
     rock2.label = "compRock";
     rock2.collisionFilter.group = 0;
@@ -189,34 +194,24 @@ class Game extends React.Component {
     gridBackground.render.opacity = 0.8;//0.8
 
     World.add(engine.world, [gridBackground, elastic1, elastic2, ground, ground2, userHead, compHead, user, comp, rock1, rock2]);
-    // app.ticker.add(()=>{
-    //   // app.stage.children[0].position = user.position;
-    // });
+
+    /*
+    Event handlers
+    */
 
     Events.on(engine, 'afterUpdate', function (e) {
       if (mouseConstraint.mouse.button === -1 && isUserTurn && (Math.abs(rock1.position.x - percentXtoRender(10, renderWidth)) > 5 || Math.abs(rock1.position.y - percentYtoRender(85, renderHeight)) > 5)) {
-        console.log(e);
-        console.log("User");
-        // mouseConstraint.constraint.
         mouseConstraint.collisionFilter.mask = 0b0;
-        // mouseConstraint.constraint.bodyA = null;
         const throwSprite = { texture: images["userThrow"], xScale: 0.17, xOffset: 0.54, yScale: 0.22, yOffset: 0.6 };
         user.render.sprite = throwSprite;
         setTimeout(function () {
           user.render.sprite = userBodySprite;
           }, 500);
         ground.collisionFilter.mask = 0b110;
-        // rock1.frictionAir = 0.002;
         rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
-        // rock1.frictionAir = 100;
-        // World.add(engine.world, rock);
         elastic1.bodyB = rock1;
       }
       if (mouseConstraint.mouse.button === -1 && !isUserTurn && (Math.abs(rock2.position.x - percentXtoRender(100, renderWidth)) > 5 || Math.abs(rock2.position.y - percentYtoRender(85, renderHeight)) > 5)) {
-        // mouseConstraint.constraint.bodyA = null;
-        console.log(e);
-        console.log("comp");
-        // console.log(mouseConstraint.constraint.bodyB);
         mouseConstraint.collisionFilter.mask = 0b0;
         const throwSprite = { texture: images["compThrow"], xScale: 0.17, xOffset: 0.48, yScale: 0.22, yOffset: 0.6 };
         comp.render.sprite = throwSprite;
@@ -225,7 +220,6 @@ class Game extends React.Component {
           }, 500);
         ground.collisionFilter.mask = 0b110;
         rock2 = Bodies.circle(percentXtoRender(100, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
-        // World.add(engine.world, rock);
         elastic2.bodyB = rock2;
       }
     });
@@ -235,21 +229,18 @@ class Game extends React.Component {
     Events.on(engine, 'collisionEnd', function (event) {
       let pairs = event.pairs;
       let thrownRock = pairs[0].bodyA.label === "ground" || pairs[0].bodyA.label === "ground2" || pairs[0].bodyA.label === "user" || pairs[0].bodyA.label === "comp" ? pairs[0].bodyB : pairs[0].bodyA;
-      console.log(pairs[0]);
       if (pairs[0].bodyA.label === "comp" || pairs[0].bodyB.label === "comp" ||
         pairs[0].bodyA.label === "user" || pairs[0].bodyB.label === "user") {
         if (firstHit) {
           firstHit = false;
           thrownRock.collisionFilter.mask = 0b100001;
           if (thrownRock.label === "userRock") {
-            console.log("Comp got hit by user's rock1\n");
             compHead.render.sprite = { texture: images["compHit"], xScale: 0.25, xOffset: 0.5, yScale: 0.25, yOffset: 1 };
-            this.props.updateHp(false);
+            this.props.gpNormal(false);
           } else {
             userHead.render.sprite = { texture: images["userHit"], xScale: 0.22, xOffset: 0.5, yScale: 0.15, yOffset: 1.1 };
-
-            console.log("User got hit by comp's rock1\n");
-            this.props.updateHp(true);
+            this.props.gpNormal(true);
+            // this.props.updateHp(true);
             // this.props.updateHp(false);
           }
           setTimeout(function () {
@@ -269,7 +260,6 @@ class Game extends React.Component {
               rock1.render.opacity = 0;
               rock2.render.opacity = 2;
               World.add(engine.world, rock1);
-              // ground.collisionFilter.mask = 0b0;
               elastic1.bodyB = rock1;
             }
             else if (thrownRock.label === "compRock" && Math.abs(lastCompTurnTime - Date.now()) > 3300) {
@@ -287,7 +277,6 @@ class Game extends React.Component {
               rock1.render.opacity = 2;
               rock2.render.opacity = 0;
               World.add(engine.world, rock2);
-              // ground.collisionFilter.mask = 0b0;
               elastic2.bodyB = rock2;
             }
             setTimeout(() => {
@@ -309,7 +298,6 @@ class Game extends React.Component {
           }
           firstHit = false;
           thrownRock.collisionFilter.mask = 0b100001;
-          console.log("Ground hit");
           setTimeout(function () {
             World.remove(engine.world, thrownRock);
             if (thrownRock.label === "userRock" && Math.abs(lastUserTurnTime - Date.now()) > 3300) {
@@ -327,7 +315,6 @@ class Game extends React.Component {
               rock1.render.opacity = 0;
               rock2.render.opacity = 2;
               World.add(engine.world, rock1);
-              // ground.collisionFilter.mask = 0b0;
               elastic1.bodyB = rock1;
             }
             else if (thrownRock.label === "compRock" && Math.abs(lastCompTurnTime - Date.now()) > 3300) {
@@ -345,7 +332,6 @@ class Game extends React.Component {
               rock1.render.opacity = 2;
               rock2.render.opacity = 0;
               World.add(engine.world, rock2);
-              // ground.collisionFilter.mask = 0b0;
               elastic2.bodyB = rock2;
             }
             setTimeout(() => {
@@ -400,4 +386,4 @@ class Game extends React.Component {
 
 }
 
-export default Game;
+export default connect(null, mapDispatchToProps)(Game);
