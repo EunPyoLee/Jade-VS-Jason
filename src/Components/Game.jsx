@@ -9,10 +9,10 @@ import jason_miss from './Gameimages/jason_miss.gif';
 import jade_miss from './Gameimages/jade_miss.gif';
 import jason_hit from './Gameimages/jason_hit.gif';
 import jade_hit from './Gameimages/jade_hit.gif';
-import backgroundImg from './Gameimages/background2.jpeg';
+import backgroundImg from './Gameimages/background.png';
 import towerImg from './Gameimages/tower.png';
 import rocketImg from './Gameimages/rocket.png'
-import standImg from './Gameimages/Stand.png';
+import standImg from './Gameimages/stand.png';
 import userThrowImg from './Gameimages/throw_user.png';
 import compThrowImg from './Gameimages/throw_comp.png'
 import { connect } from 'react-redux';
@@ -37,6 +37,7 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
+    
     const images = {
       "userStart": jason_start,
       "userMiss": jason_miss,
@@ -90,8 +91,8 @@ class Game extends React.Component {
       render: {
         sprite: {
           texture: images['background'],
-          xScale: 1.8,
-          yScale: 1.75,
+          xScale: 0.45,
+          yScale: 0.4,
         }
       }
     });
@@ -191,7 +192,7 @@ class Game extends React.Component {
     compHead.render.opacity = 5;
     ground2.render.opacity = 2;
     ground.render.opacity = 0;
-    gridBackground.render.opacity = 0.8;//0.8
+    gridBackground.render.opacity = 2;//0.8
 
     World.add(engine.world, [gridBackground, elastic1, elastic2, ground, ground2, userHead, compHead, user, comp, rock1, rock2]);
 
@@ -381,6 +382,7 @@ class Game extends React.Component {
   }
 
   render() {
+    console.log("Game.jsx");
     return <div className="scene" ref="scene" />;
   }
 

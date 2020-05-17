@@ -5,11 +5,9 @@ import Projects from './Projects'
 import Contact from './Contact'
 import Game from './Game.jsx'
 import Health from './Health.jsx'
-// import { myReduxState } from '../Reducers';
-// import { reset, done, open, close } from '../Store/Game/Gameplay/Actions/gameActions';
-// import { gameReducer } from '../Reducers/gameReducer';
-import {addNormal} from '../Store/Gameplay/hpActions'
-import {resetScreen, doneScreen, closeScreen, openScreen} from '../Store/Gamescreen/screenActions';
+import Win from './Win.jsx'
+import { addNormal } from '../Store/Gameplay/hpActions'
+import { resetScreen, doneScreen, closeScreen, openScreen } from '../Store/Gamescreen/screenActions';
 import '../Css/App.css';
 import { finished } from 'stream';
 import { connect } from 'react-redux';
@@ -37,67 +35,62 @@ import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
   console.log(state);
-  const {isDone , isClosed } = state.screenSystem;
-  return {isDone: isDone , isCLose: isClosed};
+  const { isDone, isClosed, isUserWinner } = state.screenSystem;
+  return { isDone: isDone, isClosed: isClosed, isUserWinner: isUserWinner };
 }
 
-const mapDispatchToProps = dispatch  => { 
-  return{
-    gpNormal: (_isUser) => dispatch(addNormal(_isUser)),
+const mapDispatchToProps = dispatch => {
+  return {
     gsClose: () => dispatch(closeScreen()),
     gsOpen: () => dispatch(openScreen()),
     gsDone: (_isUserWon) => dispatch(doneScreen(_isUserWon)),
-    gsReset: () => dispatch(resetScreen())
+    gsReset: () => {dispatch(resetScreen())}
   }
 };
 
-class App extends React.Component{
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       nicknames: []
     };
   }
-  
-  
+
+
 
   componentDidMount() {
-    // const unsubscribe = this.props.store.subscribe(() => {
-    //   this.setState({
-    //     finished: this.props.store.getState().gameReducer.isDone,
-    //     isClosed: this.props.store.getState().gameReducer.isClosed
-    //   })
-    // });
+    
     this.setState({ nicknames: [{ id: 0, name: "Programmer" }, { id: 1, name: "Home Cook" }, { id: 2, name: "Just Dance Dancer" }] });
   }
 
 
   render() {
+    console.log("App.jsx");
     return (
       <div className="App">
         <Thumbnail nicknames={this.state.nicknames} />
+        {this.props.isClosed ? <button onClick={this.props.gsOpen}>Play "Jason VS Jade" </button> :
+          this.props.isDone ?
+            <Win/> :
+            <div className="gameContainer">
+              <div className="hpContainer">
+                <div className="gameprofile">Jason</div>
+                <div className="hpLimiter">
+                  <Health store={this.props.store} side='user' />
+                </div>
 
-        <div className="gameContainer">
-          {this.props.isClose ? "done" :
-            <div className="hpContainer">
-              <div className="gameprofile">Jason</div>
-              <div className="hpLimiter">
-                <Health store={this.props.store} side='user' />
+                <div className="gapBox"><button onClick={this.props.gsClose}>Close "Jason VS Jade"</button></div>
+                <div className="hpLimiter comp">
+                  <Health store={this.props.store} side='comp' />
+                </div>
+                <div className="gameprofile">Jade</div>
               </div>
-
-              <div className="gapBox"><button onClick={this.props.gsClose}>Close</button></div>
-              <div className="hpLimiter comp">
-                <Health store={this.props.store} side='comp' />
-              </div>
-              <div className="gameprofile">Jade</div>
+              <canvas id="gameCanvas"></canvas>
+              <Game />
             </div>
-          }
-          <canvas id="gameCanvas"></canvas>
-        </div>
+        }
 
 
-        {this.state.finished ? ""
-          : <Game updateHp={(_isUser) => this.props.gpNormal()} />}
         <About />
         <Projects />
         <Contact />

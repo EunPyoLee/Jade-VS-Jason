@@ -24,9 +24,11 @@ class Health extends React.Component {
   }
 
   componentDidMount() {
+    
   }
 
   render() {
+    console.log("Health.jsx");
     let trailColor="#33313b";
     let strokeColor="#2b580c";
     const curHP = (this.props.side==='user' ? this.props.userHP : this.props.compHP);
@@ -35,7 +37,7 @@ class Health extends React.Component {
     }
     else if(curHP === 0){
       strokeColor="#33313b";
-      if(this.state.side == 'user'){
+      if(this.props.side === 'user'){
         this.props.gsDone(false);
       }
       else{

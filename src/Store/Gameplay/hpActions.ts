@@ -6,3 +6,4 @@ export function addNormal(_isUser : boolean) : PlayActionTypes {
         isUser: _isUser
     }
 }
+
