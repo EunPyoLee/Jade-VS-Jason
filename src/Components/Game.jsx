@@ -31,13 +31,24 @@ const mapDispatchToProps = dispatch  => {
   }
 };
 
+const soundObj = {
+  "throw": new Audio("throw.wav"),
+  "hit" : new Audio("hit.wav"),
+  "groundHit" : new Audio("groundHit.wav"),
+  "laugh" : new Audio("laugh.wav")
+}
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
   }
 
   componentDidMount() {
-    
+    soundObj["throw"].playbackRate = 4.0;
+    soundObj["hit"].playbackRate = 4.0;
+    soundObj["groundHit"].playbackRate = 4.0;
+    soundObj["laugh"].playbackRate = 1;
+    soundObj["laugh"].volume = 0.4;
     const images = {
       "userStart": jason_start,
       "userMiss": jason_miss,
@@ -202,6 +213,8 @@ class Game extends React.Component {
 
     Events.on(engine, 'afterUpdate', function (e) {
       if (mouseConstraint.mouse.button === -1 && isUserTurn && (Math.abs(rock1.position.x - percentXtoRender(10, renderWidth)) > 5 || Math.abs(rock1.position.y - percentYtoRender(85, renderHeight)) > 5)) {
+        
+        soundObj["throw"].play();
         mouseConstraint.collisionFilter.mask = 0b0;
         const throwSprite = { texture: images["userThrow"], xScale: 0.17, xOffset: 0.54, yScale: 0.22, yOffset: 0.6 };
         user.render.sprite = throwSprite;
@@ -211,8 +224,10 @@ class Game extends React.Component {
         ground.collisionFilter.mask = 0b110;
         rock1 = Bodies.circle(percentXtoRender(10, renderWidth), percentYtoRender(85, renderHeight), 8, rockOptions);
         elastic1.bodyB = rock1;
+        
       }
       if (mouseConstraint.mouse.button === -1 && !isUserTurn && (Math.abs(rock2.position.x - percentXtoRender(100, renderWidth)) > 5 || Math.abs(rock2.position.y - percentYtoRender(85, renderHeight)) > 5)) {
+        soundObj["throw"].play();
         mouseConstraint.collisionFilter.mask = 0b0;
         const throwSprite = { texture: images["compThrow"], xScale: 0.17, xOffset: 0.48, yScale: 0.22, yOffset: 0.6 };
         comp.render.sprite = throwSprite;
@@ -237,9 +252,11 @@ class Game extends React.Component {
           thrownRock.collisionFilter.mask = 0b100001;
           if (thrownRock.label === "userRock") {
             compHead.render.sprite = { texture: images["compHit"], xScale: 0.25, xOffset: 0.5, yScale: 0.25, yOffset: 1 };
+            soundObj['hit'].play();
             this.props.gpNormal(false);
           } else {
             userHead.render.sprite = { texture: images["userHit"], xScale: 0.22, xOffset: 0.5, yScale: 0.15, yOffset: 1.1 };
+            soundObj['hit'].play();
             this.props.gpNormal(true);
             // this.props.updateHp(true);
             // this.props.updateHp(false);
@@ -293,9 +310,19 @@ class Game extends React.Component {
         if (firstHit) {
           if (thrownRock.label === "compRock") {
             userHead.render.sprite = { texture: images["userMiss"], xScale: 0.22, xOffset: 0.48, yScale: 0.22, yOffset: 0.82 };
+            soundObj["laugh"].play();
           }
           else if (thrownRock.label === "userRock") {
             compHead.render.sprite = { texture: images["compMiss"], xScale: 0.22, xOffset: 0.45, yScale: 0.25, yOffset: 0.90 };
+            soundObj["laugh"].play();
+          }
+          let rocketBody =  pairs[0].bodyA.label === "ground2" ? pairs[0].bodyA : pairs[0].bodyB.label === "ground2" ? pairs[0].bodyB : null;
+          let groundBody = pairs[0].bodyA.label === "ground" ? pairs[0].bodyA : pairs[0].bodyB.label === "ground" ? pairs[0].bodyB : null;
+          if(rocketBody != null){
+            soundObj['hit'].play();
+          }
+          if(groundBody != null){
+            soundObj['groundHit'].play();
           }
           firstHit = false;
           thrownRock.collisionFilter.mask = 0b100001;

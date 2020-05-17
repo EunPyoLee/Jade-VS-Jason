@@ -37,12 +37,14 @@ class Health extends React.Component {
     }
     else if(curHP === 0){
       strokeColor="#33313b";
-      if(this.props.side === 'user'){
-        this.props.gsDone(false);
-      }
-      else{
-        this.props.gsDone(true);
-      }
+      setTimeout(() => {
+        if(this.props.side === 'user'){
+          this.props.gsDone(false);
+        }
+        else{
+          this.props.gsDone(true);
+        }
+      }, 1000);
     }
 
     return <Line strokeLinecap="square" percent={curHP} strokeWidth="10" trailWidth="10"  trailColor={trailColor} strokeColor={strokeColor}/>;

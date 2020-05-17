@@ -10,12 +10,12 @@ export function hpReducer(prevHPState = initialState, action: PlayActionTypes): 
     case 'normal':
       if (action.isUser) {
         return Object.assign({}, prevHPState, {
-          userHP: prevHPState.userHP - 20
+          userHP: prevHPState.userHP - 100
         });
       }
       else {
         return Object.assign({}, prevHPState, {
-          compHP: prevHPState.compHP - 20
+          compHP: prevHPState.compHP - 100
         });
       }
     case 'reset':
