@@ -1,30 +1,55 @@
 import React from 'react';
 import { Line, Circle } from 'rc-progress';
 import { inherits } from 'util';
+import {resetScreen, doneScreen} from '../Store/Gamescreen/screenActions';
+import { connect } from 'react-redux';
+
+
+const mapStateToProps = (state) => {
+  console.log(state);
+  const {userHP , compHP } = state.hpSystem;
+  return {userHP: userHP , compHP: compHP};
+}
+
+const mapDispatchToProps = dispatch  => { 
+  return{
+    gsDone: (_isUserWon) => dispatch(doneScreen(_isUserWon)),
+    gsReset: () => dispatch(resetScreen())
+  }
+};
 
 class Health extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
   }
 
   componentDidMount() {
-
+    
   }
 
   render() {
-    let trailColor="red";
-    let strokeColor="green";
-    if(this.props.hp === 100){
-      trailColor="green";
+    console.log("Health.jsx");
+    let trailColor="#33313b";
+    let strokeColor="#2b580c";
+    const curHP = (this.props.side==='user' ? this.props.userHP : this.props.compHP);
+    if(curHP === 100){
+      trailColor="#2b580c";
     }
-    else if(this.props.hp === 0){
-      strokeColor="red";
+    else if(curHP === 0){
+      strokeColor="#33313b";
+      setTimeout(() => {
+        if(this.props.side === 'user'){
+          this.props.gsDone(false);
+        }
+        else{
+          this.props.gsDone(true);
+        }
+      }, 1000);
     }
 
-    return <Line strokeLinecap="square" percent={this.props.hp} strokeWidth="10" trailWidth="10"  trailColor={trailColor} strokeColor={strokeColor}/>;
+    return <Line strokeLinecap="square" percent={curHP} strokeWidth="10" trailWidth="10"  trailColor={trailColor} strokeColor={strokeColor}/>;
   }
 
 }
-export default Health;
+export default connect(mapStateToProps, mapDispatchToProps)(Health);
 
