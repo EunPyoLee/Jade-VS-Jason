@@ -1,3 +1,5 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-This is my new personal website that integrates React.js Typescript Matter.js
+Cannoball shooting game built on top of physics library "Matter.js"
+
+This is collabrated with Jade Kim.
